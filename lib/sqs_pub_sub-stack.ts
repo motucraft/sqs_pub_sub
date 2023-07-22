@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib'
+import * as sqs from 'aws-cdk-lib/aws-sqs'
 import { Construct } from 'constructs'
 import * as path from 'path'
 
@@ -7,13 +8,13 @@ export class SqsPubSubStack extends cdk.Stack {
     super(scope, id, props)
 
     // Create the dead letter queue
-    const dlQueue = new cdk.aws_sqs.Queue(this, 'DeadLetterQueue', {
+    const dlQueue = new sqs.Queue(this, 'DeadLetterQueue', {
       fifo: true,
       queueName: `${id}-DLQueue.fifo`,
       visibilityTimeout: cdk.Duration.seconds(300)
     })
 
-    const queue = new cdk.aws_sqs.Queue(this, 'Queue', {
+    const queue = new sqs.Queue(this, 'Queue', {
       fifo: true,
       queueName: `${id}-Queue.fifo`,
       visibilityTimeout: cdk.Duration.seconds(300),
@@ -27,7 +28,7 @@ export class SqsPubSubStack extends cdk.Stack {
   /**
    * Create Publisher API
    */
-  createPublisher(queue: cdk.aws_sqs.Queue) {
+  createPublisher(queue: sqs.IQueue) {
     const publisherApi = new cdk.aws_apigateway.RestApi(this, 'publisher_api', {
       restApiName: 'publisher_api',
       description: 'Publish a message to SQS.',
@@ -67,12 +68,12 @@ export class SqsPubSubStack extends cdk.Stack {
   /**
    * Create Subscriber Lambda
    */
-  createSubscriber(queue: cdk.aws_sqs.Queue) {
+  createSubscriber(queue: sqs.IQueue) {
     const subscriberLambda = new cdk.aws_lambda_nodejs.NodejsFunction(this, 'subscriber', {
       functionName: 'subscriber',
       entry: path.join(__dirname, '../src/subscriber.ts'),
       handler: 'handler',
-      runtime: cdk.aws_lambda.Runtime.NODEJS_16_X,
+      runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
       bundling: {
         forceDockerBundling: false,
       },
@@ -92,4 +93,3 @@ export class SqsPubSubStack extends cdk.Stack {
     subscriberLambda.addEventSource(new cdk.aws_lambda_event_sources.SqsEventSource(queue))
   }
 }
-
