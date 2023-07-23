@@ -44,7 +44,7 @@ export class SqsPubSubStack extends cdk.Stack {
       functionName: 'publisher',
       entry: path.join(__dirname, '../src/publisher.ts'),
       handler: 'handler',
-      runtime: cdk.aws_lambda.Runtime.NODEJS_16_X,
+      runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
       bundling: {
         forceDockerBundling: false,
       },
