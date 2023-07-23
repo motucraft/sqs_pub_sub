@@ -1,5 +1,7 @@
 # Amazon SQS Publish Subscribe
 
+[Amazon SQSにてPublish/SubscribeするLambdaをCDKでデプロイする](https://zenn.dev/motu2119/articles/afcf3a4f806c93)
+
 ## Make a project
 
 ```zsh
